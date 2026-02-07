@@ -1,14 +1,18 @@
+import 'package:docuras_maragogi/app/models/product.dart';
+
 class ProductBoxModel {
   final int? id;
   final int productId;
   final int price;
   final int unitsPerBox;
+  ProductModel? product;
 
   ProductBoxModel({
     this.id,
     required this.productId,
     required this.price,
     required this.unitsPerBox,
+    this.product,
   });
 
   Map<String, dynamic> toMap() {

@@ -1,7 +1,10 @@
+import 'package:docuras_maragogi/app/pages/add_box_page.dart';
 import 'package:docuras_maragogi/app/pages/add_clients_page.dart';
 import 'package:docuras_maragogi/app/pages/add_products_page.dart';
+import 'package:docuras_maragogi/app/pages/boxes_page.dart';
 import 'package:docuras_maragogi/app/pages/clients_page.dart';
 import 'package:docuras_maragogi/app/pages/company_page.dart';
+import 'package:docuras_maragogi/app/pages/edit_box_page.dart';
 import 'package:docuras_maragogi/app/pages/edit_clients_page.dart';
 import 'package:docuras_maragogi/app/pages/edit_products_page.dart';
 import 'package:docuras_maragogi/app/pages/products_page.dart';
@@ -57,6 +60,27 @@ final router = GoRouter(
               builder: (context, state) {
                 final id = state.pathParameters['id']!;
                 return EditProductsPage(productId: int.parse(id));
+              },
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/caixas',
+          name: 'caixas',
+          builder: (context, state) => BoxesPage(),
+          routes: [
+            GoRoute(
+              path: 'adicionar',
+              name: 'caixas-adicionar',
+              builder: (context, state) => AddBoxPage(),
+            ),
+
+            GoRoute(
+              path: ':id',
+              name: 'caixas-editar',
+              builder: (context, state) {
+                final id = state.pathParameters['id']!;
+                return EditBoxPage(boxId: int.parse(id));
               },
             ),
           ],

@@ -57,6 +57,11 @@ class MainLayout extends StatelessWidget {
               title: const Text('Produtos'),
               onTap: () => context.pushNamed('produtos'),
             ),
+            ListTile(
+              leading: const Icon(Icons.inventory),
+              title: const Text('Caixas'),
+              onTap: () => context.pushNamed('caixas'),
+            ),
           ],
         ),
       ),
