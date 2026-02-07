@@ -1,7 +1,10 @@
 import 'package:docuras_maragogi/app/pages/add_clients_page.dart';
+import 'package:docuras_maragogi/app/pages/add_products_page.dart';
 import 'package:docuras_maragogi/app/pages/clients_page.dart';
 import 'package:docuras_maragogi/app/pages/company_page.dart';
 import 'package:docuras_maragogi/app/pages/edit_clients_page.dart';
+import 'package:docuras_maragogi/app/pages/edit_products_page.dart';
+import 'package:docuras_maragogi/app/pages/products_page.dart';
 import 'package:docuras_maragogi/app/widgets/layout.dart';
 import 'package:go_router/go_router.dart';
 
@@ -33,6 +36,27 @@ final router = GoRouter(
               builder: (context, state) {
                 final id = state.pathParameters['id']!;
                 return EditClientsPage(clientId: int.parse(id));
+              },
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/produtos',
+          name: 'produtos',
+          builder: (context, state) => ProductsPage(),
+          routes: [
+            GoRoute(
+              path: 'adicionar',
+              name: 'produtos-adicionar',
+              builder: (context, state) => AddProductsPage(),
+            ),
+
+            GoRoute(
+              path: ':id',
+              name: 'produtos-editar',
+              builder: (context, state) {
+                final id = state.pathParameters['id']!;
+                return EditProductsPage(productId: int.parse(id));
               },
             ),
           ],

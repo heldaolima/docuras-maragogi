@@ -1,19 +1,20 @@
-import 'package:docuras_maragogi/app/data/repository/client_repository.dart';
+import 'package:docuras_maragogi/app/data/repository/product_repository.dart';
+import 'package:docuras_maragogi/app/utils/converters.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class ClientsPage extends StatefulWidget {
-  const ClientsPage({super.key});
+class ProductsPage extends StatefulWidget {
+  const ProductsPage({super.key});
 
   @override
-  State<ClientsPage> createState() => _ClientsPageState();
+  State<ProductsPage> createState() => _ProductsPageState();
 }
 
-class _ClientsPageState extends State<ClientsPage> {
-  final ClientRepository _repo = ClientRepository();
+class _ProductsPageState extends State<ProductsPage> {
+  final _repo = ProductRepository();
   bool _isLoading = false;
 
-  Future<void> _deleteClient(int clientId) async {
+  Future<void> _deleteProduct(int productId) async {
     if (_isLoading) return;
 
     setState(() {
@@ -21,20 +22,22 @@ class _ClientsPageState extends State<ClientsPage> {
     });
 
     try {
-      await _repo.delete(clientId);
+      await _repo.delete(productId);
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cliente removido')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Produto removido')));
     } catch (e, s) {
-      debugPrint('Erro ao excluir o cliente: $e');
+      debugPrint('Erro ao excluir o produto: $e');
       debugPrintStack(stackTrace: s);
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Erro ao excluir cliente'),
+          content: Text('Erro ao excluir produto'),
           backgroundColor: Colors.red,
         ),
       );
@@ -63,10 +66,12 @@ class _ClientsPageState extends State<ClientsPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Clientes', style: TextStyle(fontSize: 24)),
+                  Text('Produtos', style: TextStyle(fontSize: 24)),
                   ElevatedButton.icon(
-                    onPressed: () => context.pushNamed('clientes-adicionar'),
-                    label: const Text('Adicionar Cliente'),
+                    onPressed: () {
+                      context.pushNamed('produtos-adicionar');
+                    },
+                    label: const Text('Adicionar Produto'),
                     icon: Icon(Icons.add),
                   ),
                 ],
@@ -85,32 +90,48 @@ class _ClientsPageState extends State<ClientsPage> {
                     sortColumnIndex: 0,
                     columns: [
                       DataColumn(label: Expanded(child: const Text('Nome'))),
-                      DataColumn(label: Expanded(child: const Text('Contato'))),
+                      DataColumn(
+                        label: Expanded(
+                          child: const Text('Preço de Varejo (unidade)'),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Expanded(
+                          child: const Text('Preço de Atacado (unidade)'),
+                        ),
+                      ),
                       DataColumn(label: Expanded(child: const Text('Ações'))),
                     ],
                     rows: snapshot.data!
                         .map(
-                          (client) => DataRow(
+                          (product) => DataRow(
                             cells: [
-                              DataCell(Text(client.name)),
-                              DataCell(Text(client.contact ?? '-')),
+                              DataCell(Text(product.name)),
+                              DataCell(
+                                Text(parseIntToBrazilianCurrentFormat(product.unitRetailPrice)),
+                              ),
+                              DataCell(
+                                Text(parseIntToBrazilianCurrentFormat(product.unitWholesalePrice)),
+                              ),
                               DataCell(
                                 Row(
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.delete),
                                       onPressed: _isLoading
                                           ? null
-                                          : () => _deleteClient(client.id!),
+                                          : () => _deleteProduct(product.id!),
+                                      icon: Icon(Icons.delete),
                                     ),
                                     IconButton(
+                                      onPressed: () {
+                                        context.pushNamed(
+                                          'produtos-editar',
+                                          pathParameters: {
+                                            'id': product.id!.toString(),
+                                          },
+                                        );
+                                      },
                                       icon: Icon(Icons.edit),
-                                      onPressed: () => context.pushNamed(
-                                        'clientes-editar',
-                                        pathParameters: {
-                                          'id': client.id!.toString(),
-                                        },
-                                      ),
                                     ),
                                   ],
                                 ),
