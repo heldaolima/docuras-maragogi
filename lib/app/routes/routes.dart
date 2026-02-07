@@ -1,12 +1,9 @@
-import 'package:docuras_maragogi/app/pages/add_box_page.dart';
-import 'package:docuras_maragogi/app/pages/add_clients_page.dart';
-import 'package:docuras_maragogi/app/pages/add_products_page.dart';
+import 'package:docuras_maragogi/app/pages/box_form_page.dart';
 import 'package:docuras_maragogi/app/pages/boxes_page.dart';
+import 'package:docuras_maragogi/app/pages/client_form_page.dart';
 import 'package:docuras_maragogi/app/pages/clients_page.dart';
 import 'package:docuras_maragogi/app/pages/company_page.dart';
-import 'package:docuras_maragogi/app/pages/edit_box_page.dart';
-import 'package:docuras_maragogi/app/pages/edit_clients_page.dart';
-import 'package:docuras_maragogi/app/pages/edit_products_page.dart';
+import 'package:docuras_maragogi/app/pages/product_form_page.dart';
 import 'package:docuras_maragogi/app/pages/products_page.dart';
 import 'package:docuras_maragogi/app/widgets/layout.dart';
 import 'package:go_router/go_router.dart';
@@ -30,15 +27,14 @@ final router = GoRouter(
             GoRoute(
               path: 'adicionar',
               name: 'clientes-adicionar',
-              builder: (context, state) => AddClientsPage(),
+              builder: (context, state) => ClientFormPage(),
             ),
-
             GoRoute(
               path: ':id',
               name: 'clientes-editar',
               builder: (context, state) {
                 final id = state.pathParameters['id']!;
-                return EditClientsPage(clientId: int.parse(id));
+                return ClientFormPage(clientId: int.parse(id));
               },
             ),
           ],
@@ -51,7 +47,7 @@ final router = GoRouter(
             GoRoute(
               path: 'adicionar',
               name: 'produtos-adicionar',
-              builder: (context, state) => AddProductsPage(),
+              builder: (context, state) => ProductFormPage(),
             ),
 
             GoRoute(
@@ -59,7 +55,7 @@ final router = GoRouter(
               name: 'produtos-editar',
               builder: (context, state) {
                 final id = state.pathParameters['id']!;
-                return EditProductsPage(productId: int.parse(id));
+                return ProductFormPage(productId: int.parse(id));
               },
             ),
           ],
@@ -72,7 +68,7 @@ final router = GoRouter(
             GoRoute(
               path: 'adicionar',
               name: 'caixas-adicionar',
-              builder: (context, state) => AddBoxPage(),
+              builder: (context, state) => BoxFormPage(),
             ),
 
             GoRoute(
@@ -80,7 +76,7 @@ final router = GoRouter(
               name: 'caixas-editar',
               builder: (context, state) {
                 final id = state.pathParameters['id']!;
-                return EditBoxPage(boxId: int.parse(id));
+                return BoxFormPage(boxId: int.parse(id));
               },
             ),
           ],

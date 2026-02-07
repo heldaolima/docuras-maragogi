@@ -1,14 +1,37 @@
+import 'package:docuras_maragogi/app/widgets/page_layout.dart';
+import 'package:flutter/material.dart';
 import 'package:docuras_maragogi/app/data/repository/product_box_repository.dart';
 import 'package:docuras_maragogi/app/data/repository/product_repository.dart';
 import 'package:docuras_maragogi/app/models/product_box.dart';
 import 'package:docuras_maragogi/app/utils/converters.dart';
 import 'package:docuras_maragogi/app/utils/formatters.dart';
 import 'package:docuras_maragogi/app/widgets/save_button.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
+
+class BoxFormPage extends StatelessWidget {
+  final int? boxId;
+  const BoxFormPage({super.key, this.boxId});
+
+  @override
+  Widget build(BuildContext context) {
+    final prefix = boxId == null ? 'Adicionar' : 'Editar';
+    debugPrint('boxId: $boxId');
+    return PageLayout(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('$prefix caixa', style: TextStyle(fontSize: 24)),
+          const SizedBox(height: 20),
+          ProductBoxForm(boxId: boxId),
+        ],
+      ),
+    );
+  }
+}
 
 class ProductBoxForm extends StatefulWidget {
   final int? boxId;
@@ -30,24 +53,17 @@ class _ProductBoxFormState extends State<ProductBoxForm> {
     super.initState();
 
     if (widget.boxId != null) {
-      _loadProduct();
+      _loadBox();
     }
   }
 
-  Future<void> _loadProduct() async {
+  Future<void> _loadBox() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
       _box = await _repo.findById(widget.boxId!);
-      if (!mounted) return;
-
-      _formKey.currentState?.patchValue({
-        ..._box!.toMap(),
-        'price': parseIntToBrazilianCurrentFormat(_box!.price),
-        'units_per_box': _box!.unitsPerBox.toString(),
-      });
     } finally {
       if (mounted) {
         setState(() {
@@ -65,7 +81,6 @@ class _ProductBoxFormState extends State<ProductBoxForm> {
       _isLoading = true;
     });
     try {
-
       final values = _formKey.currentState!.value;
       debugPrint(values.toString());
       final product = ProductBoxModel.fromMap({
@@ -88,6 +103,7 @@ class _ProductBoxFormState extends State<ProductBoxForm> {
       ).showSnackBar(const SnackBar(content: Text('Caixa de produto salva')));
 
       await Future.delayed(const Duration(microseconds: 300));
+
       if (!mounted) return;
 
       context.pop();
@@ -125,6 +141,13 @@ class _ProductBoxFormState extends State<ProductBoxForm> {
 
         return FormBuilder(
           key: _formKey,
+          initialValue: _box == null
+              ? {}
+              : {
+                  ..._box!.toMap(),
+                  'price': parseIntToBrazilianCurrentFormat(_box!.price),
+                  'units_per_box': _box!.unitsPerBox.toString(),
+                },
           child: Column(
             children: [
               FormBuilderDropdown<int>(

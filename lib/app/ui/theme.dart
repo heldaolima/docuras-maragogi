@@ -108,7 +108,7 @@ ThemeData theme = ThemeData(
       borderRadius: BorderRadius.circular(4),
       borderSide: const BorderSide(color: Colors.black, width: 1.5),
     ),
-    labelStyle: const TextStyle(color: Colors.black),
+    labelStyle: const TextStyle(color: Colors.black45),
     hintStyle: const TextStyle(color: Colors.black45),
   ),
 

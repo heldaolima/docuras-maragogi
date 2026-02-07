@@ -1,10 +1,36 @@
+import 'package:docuras_maragogi/app/widgets/page_layout.dart';
+import 'package:flutter/material.dart';
 import 'package:docuras_maragogi/app/data/repository/client_repository.dart';
 import 'package:docuras_maragogi/app/models/client.dart';
 import 'package:docuras_maragogi/app/widgets/save_button.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
+
+class ClientFormPage extends StatefulWidget {
+  final int? clientId;
+  const ClientFormPage({super.key, this.clientId});
+
+  @override
+  State<ClientFormPage> createState() => _ClientFormPageState();
+}
+
+class _ClientFormPageState extends State<ClientFormPage> {
+  @override
+  Widget build(BuildContext context) {
+  final prefix = widget.clientId == null ? 'Adicionar' : 'Editar';
+
+    return PageLayout(child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('$prefix cliente', style: TextStyle(fontSize: 24)),
+        const SizedBox(height: 20),
+        ClientForm(clientId: widget.clientId),
+      ],
+    ));
+  }
+}
 
 class ClientForm extends StatefulWidget {
   final int? clientId;

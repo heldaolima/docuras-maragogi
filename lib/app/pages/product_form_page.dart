@@ -1,13 +1,35 @@
+import 'package:docuras_maragogi/app/widgets/page_layout.dart';
+import 'package:flutter/material.dart';
 import 'package:docuras_maragogi/app/data/repository/product_repository.dart';
 import 'package:docuras_maragogi/app/models/product.dart';
 import 'package:docuras_maragogi/app/utils/converters.dart';
 import 'package:docuras_maragogi/app/utils/formatters.dart';
 import 'package:docuras_maragogi/app/widgets/save_button.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
+
+class ProductFormPage extends StatelessWidget {
+  final int? productId;
+  const ProductFormPage({super.key, this.productId});
+
+  @override
+  Widget build(BuildContext context) {
+    final prefix = productId == null ? 'Adicionar' : 'Editar';
+    return PageLayout(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('$prefix produto', style: TextStyle(fontSize: 24)),
+          const SizedBox(height: 20),
+          ProductForm(productId: productId),
+        ],
+      ),
+    );
+  }
+}
 
 class ProductForm extends StatefulWidget {
   final int? productId;
