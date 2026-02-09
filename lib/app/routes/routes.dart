@@ -3,6 +3,8 @@ import 'package:docuras_maragogi/app/pages/boxes_page.dart';
 import 'package:docuras_maragogi/app/pages/client_form_page.dart';
 import 'package:docuras_maragogi/app/pages/clients_page.dart';
 import 'package:docuras_maragogi/app/pages/company_page.dart';
+import 'package:docuras_maragogi/app/pages/order_form_page.dart';
+import 'package:docuras_maragogi/app/pages/orders_page.dart';
 import 'package:docuras_maragogi/app/pages/product_form_page.dart';
 import 'package:docuras_maragogi/app/pages/products_page.dart';
 import 'package:docuras_maragogi/app/widgets/layout.dart';
@@ -77,6 +79,27 @@ final router = GoRouter(
               builder: (context, state) {
                 final id = state.pathParameters['id']!;
                 return BoxFormPage(boxId: int.parse(id));
+              },
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/pedidos',
+          name: 'pedidos',
+          builder: (context, state) => OrdersPage(),
+          routes: [
+            GoRoute(
+              path: 'adicionar',
+              name: 'pedidos-adicionar',
+              builder: (context, state) => OrderFormPage(),
+            ),
+
+            GoRoute(
+              path: ':id',
+              name: 'pedidos-editar',
+              builder: (context, state) {
+                final id = state.pathParameters['id']!;
+                return OrderFormPage(orderId: int.parse(id));
               },
             ),
           ],

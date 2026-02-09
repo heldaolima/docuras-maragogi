@@ -155,7 +155,7 @@ class _ProductBoxFormState extends State<ProductBoxForm> {
                 decoration: const InputDecoration(labelText: 'Produto'),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(
-                    errorText: 'O campo produto é obrigatório',
+                    errorText: 'O campo Produto é obrigatório',
                   ),
                 ]),
                 items: products

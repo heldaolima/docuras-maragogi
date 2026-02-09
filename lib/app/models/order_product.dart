@@ -1,13 +1,13 @@
 class OrderProductModel {
   final int? id;
-  final int orderId;
+  final int? orderId;
   final int productBoxId;
   final int quantity;
   final int price;
 
   OrderProductModel({
     this.id,
-    required this.orderId,
+    this.orderId,
     required this.productBoxId,
     required this.quantity,
     required this.price,

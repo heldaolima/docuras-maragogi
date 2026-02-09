@@ -25,3 +25,7 @@ String parseIntToBrazilianCurrentFormat(int value) {
 
   return format.format(value / 100);
 }
+
+String datetimeToBrString(DateTime date) {
+  return '${date.day}/${date.month}/${date.year}';
+}

@@ -1,14 +1,21 @@
+import 'package:docuras_maragogi/app/models/client.dart';
+import 'package:docuras_maragogi/app/models/order_product.dart';
+
 class OrderModel {
   final int? id;
   final int clientId;
   final int numberPerClient;
   final DateTime orderDate;
+  ClientModel? client;
+  List<OrderProductModel>? orderProducts;
 
   OrderModel({
     this.id,
     required this.clientId,
     required this.numberPerClient,
     required this.orderDate,
+    this.client,
+    this.orderProducts,
   });
 
   Map<String, dynamic> toMap() {
