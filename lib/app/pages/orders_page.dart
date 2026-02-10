@@ -17,7 +17,34 @@ class _OrdersPageState extends State<OrdersPage> {
   bool _isLoading = false;
 
   Future<void> _deleteOrder(int orderId) async {
+    if (_isLoading) return;
+    setState(() {
+      _isLoading = true;
+    });
 
+    try {
+      await _repo.delete(orderId);
+
+      if (!mounted) return;
+    } catch (e, s) {
+      debugPrint('Erro ao excluir o pedido: $e');
+      debugPrintStack(stackTrace: s);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao excluir pedido'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override

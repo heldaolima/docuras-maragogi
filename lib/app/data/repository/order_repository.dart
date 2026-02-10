@@ -41,11 +41,43 @@ class OrderRepository {
     return _orderDao.findAll();
   }
 
-  Future<void> update(OrderModel order) {
-    return _orderDao.update(order);
+  Future<void> update(
+    OrderModel order,
+    List<OrderProductModel> orderProducts,
+  ) async {
+    final db = await DbProvider.instance.database;
+    await db.transaction((txn) async {
+      await txn.update(
+        'orders',
+        order.toMap(),
+        where: 'id = ?',
+        whereArgs: [order.id!],
+      );
+
+      // in this case, an update is easier if it is a reset
+      // because of the [OrderProductModel] instances
+      await txn.delete(
+        'order_product',
+        where: 'order_id = ?',
+        whereArgs: [order.id],
+      );
+
+      for (final item in orderProducts) {
+        await txn.insert('order_product', {
+          ...item.toMap(),
+          'id': order.id!,
+        });
+      }
+    });
   }
 
-  Future<void> delete(int id) {
+  Future<void> delete(int id) async {
+    final db = await DbProvider.instance.database;
+    await db.transaction((txn) async {
+      await txn.delete('order_product', where: 'order_id = ?', whereArgs: [id]);
+      await txn.delete('orders', where: 'id = ?', whereArgs: [id]);
+    });
+
     return _orderDao.delete(id);
   }
 
