@@ -138,7 +138,13 @@ class _OrderFormState extends State<OrderForm> {
 
         return FormBuilder(
           key: _formKey,
-          initialValue: _order == null ? {} : _order!.toMap(),
+          initialValue: _order == null
+              ? {}
+              : {
+                  ..._order!.toMap(),
+                  'number_per_client': _order!.numberPerClient.toString(),
+                  'order_date': _order!.orderDate,
+                },
           child: Column(
             children: [
               FormBuilderDropdown<int>(
@@ -276,7 +282,12 @@ class _OrderFormState extends State<OrderForm> {
       debugPrintStack(stackTrace: s);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao salvar: $e')));
+      ).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao salvar: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -308,22 +319,28 @@ class _OrderFormState extends State<OrderForm> {
   }
 
   Future<void> _updateOrder(Map<String, dynamic> formData) async {
+    debugPrint('widget.orderId = ${widget.orderId}');
     final order = OrderModel.fromMap({
       ...formData, 
       'id': widget.orderId,
       'number_per_client': int.parse(formData['number_per_client']),
-      'order_date': formData['order_date'] as DateTime,
+      'order_date': (formData['order_date'] as DateTime).millisecondsSinceEpoch,
     });
+    debugPrint('order.orderId = ${order.id}');
 
-    final orderProducts = addedItems
-        .map(
-          (item) => OrderProductModel(
-            productBoxId: item.boxId!,
-            quantity: item.quantity,
-            price: item.unitPrice,
-          ),
-        )
-        .toList();
+    List<OrderProductModel>? orderProducts;
+    if (addedItems.any((item) => item.isNew)) {
+      debugPrint('there is a New product');
+      orderProducts = addedItems
+          .map(
+            (item) => OrderProductModel(
+              productBoxId: item.boxId!,
+              quantity: item.quantity,
+              price: item.unitPrice,
+            ),
+          )
+          .toList();
+    }
 
     await _repo.update(order, orderProducts);
   }

@@ -127,7 +127,7 @@ class _CompanyFormState extends State<CompanyForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Logo da empresa'),
+        const Text('Logo da marca'),
         const SizedBox(height: 8),
         Container(
           width: 320,

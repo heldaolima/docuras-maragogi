@@ -43,9 +43,10 @@ class OrderRepository {
 
   Future<void> update(
     OrderModel order,
-    List<OrderProductModel> orderProducts,
+    List<OrderProductModel>? orderProducts,
   ) async {
     final db = await DbProvider.instance.database;
+
     await db.transaction((txn) async {
       await txn.update(
         'orders',
@@ -54,19 +55,17 @@ class OrderRepository {
         whereArgs: [order.id!],
       );
 
-      // in this case, an update is easier if it is a reset
-      // because of the [OrderProductModel] instances
-      await txn.delete(
-        'order_product',
-        where: 'order_id = ?',
-        whereArgs: [order.id],
-      );
-
-      for (final item in orderProducts) {
-        await txn.insert('order_product', {
-          ...item.toMap(),
-          'id': order.id!,
-        });
+      if (orderProducts != null) {
+        // in this case, an update is easier if it is a reset
+        // because of the [OrderProductModel] instances
+        await txn.delete(
+          'order_product',
+          where: 'order_id = ?',
+          whereArgs: [order.id],
+        );
+        for (final item in orderProducts) {
+          await txn.insert('order_product', {...item.toMap(), 'order_id': order.id!});
+        }
       }
     });
   }

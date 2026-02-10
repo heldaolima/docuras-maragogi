@@ -8,6 +8,8 @@ class OrderItemData {
   int unitPrice = 0; // Valor em centavos
   int totalPrice = 0; // Valor em centavos
 
+  bool get isNew => id == null;
+
   final TextEditingController quantityController;
   final TextEditingController unitPriceController;
   final TextEditingController totalPriceController;
