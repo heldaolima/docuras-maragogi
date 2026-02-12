@@ -37,13 +37,11 @@ class _OrderItemsTableState extends State<OrderItemsTable> {
 
     setState(() {
       widget.items[index].boxId = box.id;
-      widget.items[index].unitPrice = box.price;
-      widget.items[index].totalPrice = box.price * widget.items[index].quantity;
+      widget.items[index].unitPrice = parseIntToBrazilianCurrentFormat(box.price);
+      widget.items[index].totalPrice = parseIntToBrazilianCurrentFormat(box.price * widget.items[index].quantity);
 
-      widget.items[index].unitPriceController.text =
-          parseIntToBrazilianCurrentFormat(widget.items[index].unitPrice);
-      widget.items[index].totalPriceController.text =
-          parseIntToBrazilianCurrentFormat(widget.items[index].totalPrice);
+      widget.items[index].unitPriceController.text =widget.items[index].unitPrice;
+      widget.items[index].totalPriceController.text = widget.items[index].totalPrice;
 
       widget.onItemsChange();
     });
@@ -53,10 +51,12 @@ class _OrderItemsTableState extends State<OrderItemsTable> {
     final quantity = int.tryParse(strQuantity) ?? 0;
     setState(() {
       widget.items[index].quantity = quantity;
-      widget.items[index].totalPrice = widget.items[index].unitPrice * quantity;
+      widget.items[index].totalPrice = parseIntToBrazilianCurrentFormat(
+        parseInputToBrazilianCurrency(widget.items[index].unitPrice) * quantity,
+      );
 
       widget.items[index].totalPriceController.text =
-          parseIntToBrazilianCurrentFormat(widget.items[index].totalPrice);
+          widget.items[index].totalPrice;
 
       widget.onItemsChange();
     });
@@ -65,21 +65,19 @@ class _OrderItemsTableState extends State<OrderItemsTable> {
   void _handleUnitPriceChange(int index, String strUnitPrice) {
     final unitPrice = parseInputToBrazilianCurrency(strUnitPrice);
     setState(() {
-      widget.items[index].unitPrice = unitPrice;
-      widget.items[index].totalPrice = unitPrice * widget.items[index].quantity;
+      widget.items[index].unitPrice = strUnitPrice;
+      widget.items[index].totalPrice = parseIntToBrazilianCurrentFormat(unitPrice * widget.items[index].quantity);
 
-      widget.items[index].totalPriceController.text = parseIntToBrazilianCurrentFormat(
-        widget.items[index].totalPrice
-      );
+      widget.items[index].totalPriceController.text =
+          (widget.items[index].totalPrice);
 
       widget.onItemsChange();
     });
   }
 
   void _handleTotalPriceChange(int index, String strTotalPrice) {
-    final totalPrice = parseInputToBrazilianCurrency(strTotalPrice);
     setState(() {
-      widget.items[index].totalPrice = totalPrice;
+      widget.items[index].totalPrice = strTotalPrice;
     });
 
     widget.onItemsChange();
@@ -117,7 +115,7 @@ class _OrderItemsTableState extends State<OrderItemsTable> {
                 .map(
                   (box) => DropdownMenuItem(
                     value: box.id,
-                    child: Text(box.product?.name ?? '-'),
+                    child: Text('${box.product?.name} [${box.unitsPerBox} un.]'),
                   ),
                 )
                 .toList(),

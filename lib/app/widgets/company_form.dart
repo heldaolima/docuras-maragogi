@@ -54,6 +54,7 @@ class _CompanyFormState extends State<CompanyForm> {
       type: FileType.image,
       allowMultiple: false,
     );
+
     if (result != null &&
         result.files.isNotEmpty &&
         result.files.first.path != null) {
@@ -74,7 +75,11 @@ class _CompanyFormState extends State<CompanyForm> {
     try {
       final values = _formKey.currentState!.value;
 
-      final company = CompanyModel.fromMap(values);
+      final company = CompanyModel.fromMap({
+        ...values,
+        'logo_image_id': _existingLogo?.id,
+      });
+
       app_file.FileModel? toSaveLogo;
       if (_pickedImage != null) {
         toSaveLogo = await FileRepository.saveFileToAppDir(_pickedImage!);
@@ -84,9 +89,7 @@ class _CompanyFormState extends State<CompanyForm> {
 
       // Update state to reflect saved logo
       if (toSaveLogo != null) {
-        // We don't have the DB id here, but CompanyRepository will insert it.
-        // Reload the company logo from DB so we have correct id/path.
-        final logo = await _repo.getCompanyLogoFile();
+        final logo = await _repo.getCompanyLogoFile(); // this will be the updated logo
         setState(() {
           _existingLogo = logo;
           _pickedImage = null;
@@ -97,7 +100,7 @@ class _CompanyFormState extends State<CompanyForm> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Informações salva')));
+      ).showSnackBar(const SnackBar(content: Text('Informações salvas')));
     } catch (e, s) {
       debugPrint('Erro ao salvar empresa: $e');
       debugPrintStack(stackTrace: s);
@@ -106,7 +109,7 @@ class _CompanyFormState extends State<CompanyForm> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Erro ao salvar empresa'),
+          content: Text('Erro ao salvar informações'),
           backgroundColor: Colors.red,
         ),
       );

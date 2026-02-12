@@ -10,6 +10,7 @@ import 'package:docuras_maragogi/app/utils/converters.dart';
 import 'package:docuras_maragogi/app/widgets/order_items_table.dart';
 import 'package:docuras_maragogi/app/widgets/page_layout.dart';
 import 'package:docuras_maragogi/app/widgets/save_button.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -72,6 +73,7 @@ class _OrderFormState extends State<OrderForm> {
       if (order != null && mounted) {
         setState(() {
           _order = order;
+          debugPrint('order Products: ${_order!.orderProducts!.map((o) => o.toMap().toString())}');
           // Carregar itens existentes
           if (order.orderProducts != null) {
             addedItems = order.orderProducts!
@@ -79,8 +81,8 @@ class _OrderFormState extends State<OrderForm> {
                   id: op.id,
                   boxId: op.productBoxId,
                   quantity: op.quantity,
-                  unitPrice: op.price,
-                  totalPrice: op.price * op.quantity,
+                  unitPrice: parseIntToBrazilianCurrentFormat(op.price),
+                  totalPrice: parseIntToBrazilianCurrentFormat(op.price * op.quantity),
                 ))
                 .toList();
           }
@@ -110,7 +112,10 @@ class _OrderFormState extends State<OrderForm> {
   }
 
   int get _totalPrice {
-    return addedItems.fold(0, (sum, item) => sum + item.totalPrice);
+    return addedItems.fold(
+      0,
+      (sum, item) => sum + parseInputToBrazilianCurrency(item.totalPrice),
+    );
   }
 
   void _onItemsChange() {
@@ -168,7 +173,7 @@ class _OrderFormState extends State<OrderForm> {
               FormBuilderDateTimePicker(
                 name: 'order_date',
                 inputType: InputType.date,
-                format: DateFormat('dd-MM-yyyy'),
+                format: DateFormat('dd/MM/yyyy'),
                 decoration: const InputDecoration(labelText: 'Data do pedido'),
                 initialDate: DateTime.now(),
                 validator: FormBuilderValidators.compose([
@@ -262,6 +267,10 @@ class _OrderFormState extends State<OrderForm> {
       setState(() => _isLoading = true);
       final formData = _formKey.currentState!.value;
 
+      debugPrint('unit prices => ${addedItems.map((i) => i.unitPrice)}');
+      debugPrint('after conversion => ${addedItems.map((i) => parseInputToBrazilianCurrency(i.unitPrice))}');
+      debugPrint('total prices => ${addedItems.map((i) => i.totalPrice)}');
+      debugPrint('after conversion => ${addedItems.map((i) => parseInputToBrazilianCurrency(i.totalPrice))}');
       if (widget.orderId == null) {
         await _createOrder(formData);
       } else {
@@ -302,10 +311,12 @@ class _OrderFormState extends State<OrderForm> {
           (item) => OrderProductModel(
             productBoxId: item.boxId!,
             quantity: item.quantity,
-            price: item.unitPrice,
+            price: parseInputToBrazilianCurrency(item.unitPrice),
           ),
         )
         .toList();
+      
+    debugPrint('will send ${orderProducts.map((o) => o.toMap().toString())}');
 
     await _repo.createOrder(
       OrderModel.fromMap({
@@ -326,22 +337,17 @@ class _OrderFormState extends State<OrderForm> {
       'number_per_client': int.parse(formData['number_per_client']),
       'order_date': (formData['order_date'] as DateTime).millisecondsSinceEpoch,
     });
-    debugPrint('order.orderId = ${order.id}');
 
-    List<OrderProductModel>? orderProducts;
-    if (addedItems.any((item) => item.isNew)) {
-      debugPrint('there is a New product');
-      orderProducts = addedItems
-          .map(
-            (item) => OrderProductModel(
-              productBoxId: item.boxId!,
-              quantity: item.quantity,
-              price: item.unitPrice,
-            ),
-          )
-          .toList();
-    }
-
+    final orderProducts = addedItems
+        .map(
+          (item) => OrderProductModel(
+            productBoxId: item.boxId!,
+            quantity: item.quantity,
+            price: parseInputToBrazilianCurrency(item.unitPrice),
+          ),
+        )
+        .toList();
+    debugPrint('will send ${orderProducts.map((o) => o.toMap().toString())}');
     await _repo.update(order, orderProducts);
   }
 }

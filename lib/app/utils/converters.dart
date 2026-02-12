@@ -26,6 +26,27 @@ String parseIntToBrazilianCurrentFormat(int value) {
   return format.format(value / 100);
 }
 
+Map<int, String> monthsPt = {
+  1: 'Janeiro',
+  2: 'Fevereiro',
+  3: 'Março',
+  4: 'Abril',
+  5: 'Maio',
+  6: 'Junho',
+  7: 'Julho',
+  8: 'Agosto',
+  9: 'Setembro',
+  10: 'Outubro',
+  11: 'Novembro',
+  12: 'Dezembro',
+};
+
 String datetimeToBrString(DateTime date) {
-  return '${date.day}/${date.month}/${date.year}';
+  return DateFormat('dd/MM/yyyy').format(date);
+}
+
+String datetimeToText(DateTime date) {
+  final day = DateFormat('dd').format(date);
+  final year = DateFormat('yyyy').format(date);
+  return '$day de ${monthsPt[date.month]} de $year';
 }

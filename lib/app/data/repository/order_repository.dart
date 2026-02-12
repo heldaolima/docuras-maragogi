@@ -4,6 +4,8 @@ import 'package:docuras_maragogi/app/data/db/db.dart';
 import 'package:docuras_maragogi/app/models/client.dart';
 import 'package:docuras_maragogi/app/models/order.dart';
 import 'package:docuras_maragogi/app/models/order_product.dart';
+import 'package:docuras_maragogi/app/models/product.dart';
+import 'package:docuras_maragogi/app/models/product_box.dart';
 
 class OrderRepository {
   final _orderProductDao = OrderProductDao();
@@ -103,8 +105,8 @@ class OrderRepository {
   ClientModel _clientModelFromQuery(Map<String, Object?> map) {
     return ClientModel(
       id: map['client_id'] as int?,
-      name: map['name'] as String,
-      contact: map['contact'] as String?,
+      name: map['c_name'] as String,
+      contact: map['c_contact'] as String?,
     );
   }
 
@@ -113,11 +115,15 @@ class OrderRepository {
     final db = await DbProvider.instance.database;
     final result = await db.rawQuery('''
       SELECT o.id, o.client_id, o.number_per_client, o.order_date,
-             c.id as client_id, c.name, c.contact,
-             op.id as op_id, op.product_box_id, op.quantity, op.price
+             c.id as client_id, c.name as c_name, c.contact as c_contact,
+             op.id as op_id, op.product_box_id, op.quantity as op_quantity, op.price as op_price,
+             pb.id as pb_id, pb.product_id, pb.units_per_box as pb_units_per_box, pb.price as pb_price,
+             p.id as p_id, p.name as product_name, p.unit_retail_price p_unit_retail_price, p.unit_wholesale_price as p_unit_wholesale_price
       FROM orders o
       INNER JOIN client c ON o.client_id = c.id
       LEFT JOIN order_product op ON o.id = op.order_id
+      LEFT JOIN product_box pb ON op.product_box_id = pb.id
+      LEFT JOIN product p ON pb.product_id = p.id
       ORDER BY o.order_date DESC, op.id
     ''');
 
@@ -138,7 +144,7 @@ class OrderRepository {
           _orderProductFromQuery(map, orderId),
         );
       }
-    }
+    } 
 
     return ordersMap.values.toList();
   }
@@ -151,8 +157,18 @@ class OrderRepository {
       id: map['op_id'] as int,
       orderId: orderId,
       productBoxId: map['product_box_id'] as int,
-      quantity: map['quantity'] as int,
-      price: map['price'] as int,
+      quantity: map['op_quantity'] as int,
+      price: map['op_price'] as int,
+      productBox: ProductBoxModel(
+        productId: map['product_box_id'] as int,
+        price: map['pb_price'] as int,
+        unitsPerBox: map['pb_units_per_box'] as int,
+        product: ProductModel(
+          name: map['product_name'] as String,
+          unitRetailPrice: map['p_unit_retail_price'] as int,
+          unitWholesalePrice: map['p_unit_wholesale_price'] as int,
+        ),
+      ),
     );
   }
 
@@ -160,7 +176,7 @@ class OrderRepository {
   Future<OrderModel?> getByIdWithClient(int id) async {
     final db = await DbProvider.instance.database;
     final result = await db.rawQuery('''
-      SELECT o.*, c.id as client_id, c.name, c.contact
+      SELECT o.*, c.id as client_id, c.name as c_name, c.contact as c_contact
       FROM orders o
       INNER JOIN client c ON o.client_id = c.id
       WHERE o.id = ?
@@ -181,11 +197,15 @@ class OrderRepository {
     final db = await DbProvider.instance.database;
     final result = await db.rawQuery('''
       SELECT o.id, o.client_id, o.number_per_client, o.order_date,
-             c.id as client_id, c.name, c.contact,
-             op.id as op_id, op.product_box_id, op.quantity, op.price
+             c.id as client_id, c.name as c_name, c.contact as c_contact,
+             op.id as op_id, op.product_box_id, op.quantity as op_quantity, op.price as op_price,
+             pb.id as pb_id, pb.product_id, pb.units_per_box as pb_units_per_box, pb.price as pb_price,
+             p.id as p_id, p.name as product_name, p.unit_retail_price as p_unit_retail_price, p.unit_wholesale_price as p_unit_wholesale_price
       FROM orders o
       INNER JOIN client c ON o.client_id = c.id
       LEFT JOIN order_product op ON o.id = op.order_id
+      LEFT JOIN product_box pb ON op.product_box_id = pb.id
+      LEFT JOIN product p ON pb.product_id = p.id
       WHERE o.id = ?
       ORDER BY op.id
     ''', [id]);
@@ -196,6 +216,7 @@ class OrderRepository {
 
     final map = result.first;
     final order = OrderModel.fromMap(map);
+
     order.client = _clientModelFromQuery(map);
     order.orderProducts = [];
 

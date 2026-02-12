@@ -9,8 +9,7 @@ class FileDao {
 
   Future<FileModel?> findById(int id) async {
     final db = await DbProvider.instance.database;
-    final result =
-        await db.query('files', where: 'id = ?', whereArgs: [id]);
+    final result = await db.query('files', where: 'id = ?', whereArgs: [id]);
 
     if (result.isEmpty) return null;
     return FileModel.fromMap(result.first);

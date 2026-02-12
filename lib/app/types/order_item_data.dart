@@ -5,8 +5,8 @@ class OrderItemData {
   int? id; // ID do item no banco (null se novo)
   int? boxId;
   int quantity = 1;
-  int unitPrice = 0; // Valor em centavos
-  int totalPrice = 0; // Valor em centavos
+  String unitPrice; // Valor em centavos
+  String totalPrice; // Valor em centavos
 
   bool get isNew => id == null;
 
@@ -18,14 +18,14 @@ class OrderItemData {
     this.id,
     this.boxId,
     this.quantity = 0,
-    this.unitPrice = 0,
-    this.totalPrice = 0,
+    this.unitPrice = '0',
+    this.totalPrice = '0',
   }) : quantityController = TextEditingController(text: quantity.toString()),
        unitPriceController = TextEditingController(
-         text: parseIntToBrazilianCurrentFormat(unitPrice),
+         text: unitPrice,
        ),
        totalPriceController = TextEditingController(
-         text: parseIntToBrazilianCurrentFormat(totalPrice),
+         text: totalPrice,
        );
 
   void dispose() {
@@ -49,13 +49,16 @@ class OrderItemData {
         );
         return;
       }
-      if (item.unitPrice <= 0) {
+
+      final unitPrice = parseInputToBrazilianCurrency(item.unitPrice);
+      if (unitPrice <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Item ${i + 1}: Preço unitário deve ser maior que 0')),
         );
         return;
       }
-      if (item.totalPrice <= 0) {
+      final totalPrice = parseInputToBrazilianCurrency(item.totalPrice);
+      if (totalPrice <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Item ${i + 1}: Total deve ser maior que 0')),
         );
@@ -64,5 +67,4 @@ class OrderItemData {
     }
 
   }
-
 }
