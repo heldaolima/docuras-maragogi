@@ -228,4 +228,29 @@ class OrderRepository {
 
     return order;
   }
+
+  Future<OrderModel?> getLastByClient(int clientId) async {
+    final db = await DbProvider.instance.database;
+    final result = await db.rawQuery(
+      '''
+      SELECT o.*, c.id as client_id, c.name as c_name, c.contact as c_contact
+      FROM orders o
+      INNER JOIN client c ON o.client_id = c.id
+      WHERE o.client_id = ?
+      ORDER BY o.number_per_client DESC
+      LIMIT 1
+    ''',
+      [clientId],
+    );
+
+    if (result.isEmpty) {
+      return null;
+    }
+
+    final map = result.first;
+    final order = OrderModel.fromMap(map);
+    order.client = _clientModelFromQuery(map);
+
+    return order;
+  }
 }

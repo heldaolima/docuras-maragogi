@@ -126,6 +126,28 @@ class _OrderFormState extends State<OrderForm> {
     final result = await Future.wait([_clientRepo.getAll(), _boxRepo.getAllWithProduct()]);
     return result;
   }
+
+  Future<void> _fetchOrderNumber(int? clientId) async {
+    if (clientId == null) {
+      return;
+    }
+
+    try {
+      final lastOrderByClient = await _repo.getLastByClient(clientId);
+      if (lastOrderByClient == null) {
+        return;
+      }
+
+      debugPrint(lastOrderByClient.toMap().toString());
+      _formKey.currentState?.patchValue({
+        'number_per_client': (lastOrderByClient.numberPerClient + 1).toString(),
+      });
+
+    } catch (e, s) {
+      debugPrint('Error when searching the last order by the client $clientId: $e');
+      debugPrintStack(stackTrace: s);
+    }
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -160,6 +182,7 @@ class _OrderFormState extends State<OrderForm> {
                     errorText: 'O campo Cliente é obrigatório',
                   ),
                 ]),
+                onChanged: _fetchOrderNumber,
                 items: clients
                     .map(
                       (client) => DropdownMenuItem(
@@ -267,10 +290,6 @@ class _OrderFormState extends State<OrderForm> {
       setState(() => _isLoading = true);
       final formData = _formKey.currentState!.value;
 
-      debugPrint('unit prices => ${addedItems.map((i) => i.unitPrice)}');
-      debugPrint('after conversion => ${addedItems.map((i) => parseInputToBrazilianCurrency(i.unitPrice))}');
-      debugPrint('total prices => ${addedItems.map((i) => i.totalPrice)}');
-      debugPrint('after conversion => ${addedItems.map((i) => parseInputToBrazilianCurrency(i.totalPrice))}');
       if (widget.orderId == null) {
         await _createOrder(formData);
       } else {
@@ -316,8 +335,6 @@ class _OrderFormState extends State<OrderForm> {
         )
         .toList();
       
-    debugPrint('will send ${orderProducts.map((o) => o.toMap().toString())}');
-
     await _repo.createOrder(
       OrderModel.fromMap({
         ...formData,
@@ -330,7 +347,6 @@ class _OrderFormState extends State<OrderForm> {
   }
 
   Future<void> _updateOrder(Map<String, dynamic> formData) async {
-    debugPrint('widget.orderId = ${widget.orderId}');
     final order = OrderModel.fromMap({
       ...formData, 
       'id': widget.orderId,
@@ -347,7 +363,6 @@ class _OrderFormState extends State<OrderForm> {
           ),
         )
         .toList();
-    debugPrint('will send ${orderProducts.map((o) => o.toMap().toString())}');
     await _repo.update(order, orderProducts);
   }
 }
