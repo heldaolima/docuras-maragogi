@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:docuras_maragogi/sql/001.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
@@ -47,11 +46,7 @@ class DbProvider {
   }
 
   Future<void> _onCreate(Database db, int version) async {
-    String initialPath = path.join(Directory.current.path, 'lib', 'sql', 'initial.sql');
-    File sqlFile = File(initialPath);
-    String sql = await sqlFile.readAsString();
-    
-    await db.execute(sql);
+    await db.execute(sql_001);
   }
 
   // Migrations

@@ -1,3 +1,4 @@
+const String sql_001 = '''
 -- Arquivos (imagens, PDFs, etc.)
 CREATE TABLE files (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,3 +64,4 @@ CREATE TABLE order_product (
   FOREIGN KEY (order_id) REFERENCES orders(id),
   FOREIGN KEY (product_box_id) REFERENCES product_box(id)
 );
+''';
