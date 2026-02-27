@@ -20,4 +20,12 @@ class ClientModel {
       contact: map['contact'],
     );
   }
+
+  factory ClientModel.fromJoinQuery(Map<String, dynamic> map) {
+    return ClientModel(
+      id: map['client_id'],
+      name: map['c_name'],
+      contact: map['c_contact'],
+    );
+  }
 }

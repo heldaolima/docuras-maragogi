@@ -4,8 +4,6 @@ import 'package:docuras_maragogi/app/data/db/db.dart';
 import 'package:docuras_maragogi/app/models/client.dart';
 import 'package:docuras_maragogi/app/models/order.dart';
 import 'package:docuras_maragogi/app/models/order_product.dart';
-import 'package:docuras_maragogi/app/models/product.dart';
-import 'package:docuras_maragogi/app/models/product_box.dart';
 
 class OrderRepository {
   final _orderProductDao = OrderProductDao();
@@ -66,7 +64,10 @@ class OrderRepository {
           whereArgs: [order.id],
         );
         for (final item in orderProducts) {
-          await txn.insert('order_product', {...item.toMap(), 'order_id': order.id!});
+          await txn.insert('order_product', {
+            ...item.toMap(),
+            'order_id': order.id!,
+          });
         }
       }
     });
@@ -97,17 +98,9 @@ class OrderRepository {
 
     return result.map((map) {
       final order = OrderModel.fromMap(map);
-      order.client = _clientModelFromQuery(map);
+      order.client = ClientModel.fromJoinQuery(map);
       return order;
     }).toList();
-  }
-
-  ClientModel _clientModelFromQuery(Map<String, Object?> map) {
-    return ClientModel(
-      id: map['client_id'] as int?,
-      name: map['c_name'] as String,
-      contact: map['c_contact'] as String?,
-    );
   }
 
   /// Retorna todas as orders com cliente e seus produtos
@@ -134,53 +127,33 @@ class OrderRepository {
 
       if (!ordersMap.containsKey(orderId)) {
         final order = OrderModel.fromMap(map);
-        order.client = _clientModelFromQuery(map);
+        order.client = ClientModel.fromJoinQuery(map);
         order.orderProducts = [];
         ordersMap[orderId] = order;
       }
 
       if (map['op_id'] != null) {
         ordersMap[orderId]!.orderProducts!.add(
-          _orderProductFromQuery(map, orderId),
+          OrderProductModel.fromJoinQuery(map, orderId),
         );
       }
-    } 
+    }
 
     return ordersMap.values.toList();
-  }
-
-  OrderProductModel _orderProductFromQuery(
-    Map<String, Object?> map,
-    int orderId,
-  ) {
-    return OrderProductModel(
-      id: map['op_id'] as int,
-      orderId: orderId,
-      productBoxId: map['product_box_id'] as int,
-      quantity: map['op_quantity'] as int,
-      price: map['op_price'] as int,
-      productBox: ProductBoxModel(
-        productId: map['product_box_id'] as int,
-        price: map['pb_price'] as int,
-        unitsPerBox: map['pb_units_per_box'] as int,
-        product: ProductModel(
-          name: map['product_name'] as String,
-          unitRetailPrice: map['p_unit_retail_price'] as int,
-          unitWholesalePrice: map['p_unit_wholesale_price'] as int,
-        ),
-      ),
-    );
   }
 
   /// Retorna uma order específica com dados do cliente
   Future<OrderModel?> getByIdWithClient(int id) async {
     final db = await DbProvider.instance.database;
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       SELECT o.*, c.id as client_id, c.name as c_name, c.contact as c_contact
       FROM orders o
       INNER JOIN client c ON o.client_id = c.id
       WHERE o.id = ?
-    ''', [id]);
+    ''',
+      [id],
+    );
 
     if (result.isEmpty) {
       return null;
@@ -188,14 +161,15 @@ class OrderRepository {
 
     final map = result.first;
     final order = OrderModel.fromMap(map);
-    order.client = _clientModelFromQuery(map);
+    order.client = ClientModel.fromJoinQuery(map);
     return order;
   }
 
   /// Retorna uma order específica com cliente e seus produtos
   Future<OrderModel?> getByIdWithClientAndProducts(int id) async {
     final db = await DbProvider.instance.database;
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       SELECT o.id, o.client_id, o.number_per_client, o.order_date,
              c.id as client_id, c.name as c_name, c.contact as c_contact,
              op.id as op_id, op.product_box_id, op.quantity as op_quantity, op.price as op_price,
@@ -208,7 +182,9 @@ class OrderRepository {
       LEFT JOIN product p ON pb.product_id = p.id
       WHERE o.id = ?
       ORDER BY op.id
-    ''', [id]);
+    ''',
+      [id],
+    );
 
     if (result.isEmpty) {
       return null;
@@ -217,12 +193,14 @@ class OrderRepository {
     final map = result.first;
     final order = OrderModel.fromMap(map);
 
-    order.client = _clientModelFromQuery(map);
+    order.client = ClientModel.fromJoinQuery(map);
     order.orderProducts = [];
 
     for (var row in result) {
       if (row['op_id'] != null) {
-        order.orderProducts!.add(_orderProductFromQuery(row, order.id!));
+        order.orderProducts!.add(
+          OrderProductModel.fromJoinQuery(row, order.id!),
+        );
       }
     }
 
@@ -249,7 +227,7 @@ class OrderRepository {
 
     final map = result.first;
     final order = OrderModel.fromMap(map);
-    order.client = _clientModelFromQuery(map);
+    order.client = ClientModel.fromJoinQuery(map);
 
     return order;
   }

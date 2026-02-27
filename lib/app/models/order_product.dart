@@ -37,6 +37,20 @@ class OrderProductModel {
     );
   }
 
+  factory OrderProductModel.fromJoinQuery(
+    Map<String, dynamic> map,
+    int orderId,
+  ) {
+    return OrderProductModel(
+      id: map['op_id'] as int,
+      orderId: orderId,
+      productBoxId: map['product_box_id'] as int,
+      quantity: map['op_quantity'] as int,
+      price: map['op_price'] as int,
+      productBox: ProductBoxModel.fromJoinQuery(map),
+    );
+  }
+
   OrderProductModel copyWith({int? orderId}) {
     return OrderProductModel(
       id: id,
@@ -46,5 +60,4 @@ class OrderProductModel {
       price: price,
     );
   }
-
 }

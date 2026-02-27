@@ -72,8 +72,12 @@ class _ClientsPageState extends State<ClientsPage> {
           FutureBuilder(
             future: _repo.getAll(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator());
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: Text('Ocorreu um erro: ${snapshot.error}'),
+                );
               }
 
               return DataTable(

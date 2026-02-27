@@ -17,8 +17,6 @@ class PdfService {
       return null;
     }
 
-    debugPrint(company.toMap().toString());
-
     final FileModel? logo = await _companyRepo.getCompanyLogoFile();
     Uint8List? logoBytes;
     if (logo != null) {

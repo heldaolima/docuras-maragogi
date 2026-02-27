@@ -38,7 +38,6 @@ class OrderFormPage extends StatelessWidget {
   }
 }
 
-
 class OrderForm extends StatefulWidget {
   final int? orderId;
   const OrderForm({super.key, this.orderId});
@@ -266,7 +265,6 @@ class _OrderFormState extends State<OrderForm> {
     );
   }
 
-
   Future<void> _saveOrder() async {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -296,9 +294,11 @@ class _OrderFormState extends State<OrderForm> {
         await _updateOrder(formData);
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pedido salvo com sucesso!')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Pedido salvo com sucesso!')),
+        );
+      }
 
       await Future.delayed(const Duration(milliseconds: 300));
 

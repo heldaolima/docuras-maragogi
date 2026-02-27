@@ -36,4 +36,3 @@ class ProductBoxRepository {
     return box;
   }
 }
-

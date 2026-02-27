@@ -28,5 +28,14 @@ class ProductModel {
       unitWholesalePrice: map['unit_wholesale_price'],
     );
   }
+
+  factory ProductModel.fromJoinQuery(Map<String, dynamic> map) {
+    return ProductModel(
+      id: map['p_id'],
+      name: map['product_name'],
+      unitRetailPrice: map['p_unit_retail_price'],
+      unitWholesalePrice: map['p_unit_wholesale_price'],
+    );
+  }
 }
 

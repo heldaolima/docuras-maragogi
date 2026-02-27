@@ -32,4 +32,13 @@ class ProductBoxModel {
       unitsPerBox: map['units_per_box'],
     );
   }
+
+  factory ProductBoxModel.fromJoinQuery(Map<String, dynamic> map) {
+    return ProductBoxModel(
+        productId: map['product_box_id'] as int,
+        price: map['pb_price'] as int,
+        unitsPerBox: map['pb_units_per_box'] as int,
+        product: ProductModel.fromJoinQuery(map)
+    );
+  }
 }

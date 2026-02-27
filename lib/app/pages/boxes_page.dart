@@ -75,13 +75,14 @@ class _BoxesPageState extends State<BoxesPage> {
           FutureBuilder(
             future: _repo.getAllWithProduct(),
             builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                debugPrint(snapshot.error!.toString());
-                return Center(child: Text(snapshot.error!.toString()));
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
               }
 
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator());
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text("Erro ao buscar caixas: ${snapshot.error!}"),
+                );
               }
 
               return DataTable(

@@ -1,5 +1,6 @@
 import 'package:docuras_maragogi/app/data/repository/product_repository.dart';
 import 'package:docuras_maragogi/app/utils/converters.dart';
+import 'package:docuras_maragogi/app/widgets/page_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -52,100 +53,105 @@ class _ProductsPageState extends State<ProductsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Card(
-        elevation: 5,
-        margin: EdgeInsets.symmetric(horizontal: 100, vertical: 50),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    return PageLayout(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Produtos', style: TextStyle(fontSize: 24)),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      context.pushNamed('produtos-adicionar');
-                    },
-                    label: const Text('Adicionar Produto'),
-                    icon: Icon(Icons.add),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              FutureBuilder(
-                future: _repo.getAll(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-
-                  return DataTable(
-                    showBottomBorder: true,
-                    sortAscending: true,
-                    sortColumnIndex: 0,
-                    columns: [
-                      DataColumn(label: Expanded(child: const Text('Nome'))),
-                      DataColumn(
-                        label: Expanded(
-                          child: const Text('Preço de Varejo (unidade)'),
-                        ),
-                      ),
-                      DataColumn(
-                        label: Expanded(
-                          child: const Text('Preço de Atacado (unidade)'),
-                        ),
-                      ),
-                      DataColumn(label: Expanded(child: const Text('Ações'))),
-                    ],
-                    rows: snapshot.data!
-                        .map(
-                          (product) => DataRow(
-                            cells: [
-                              DataCell(Text(product.name)),
-                              DataCell(
-                                Text(parseIntToBrazilianCurrentFormat(product.unitRetailPrice)),
-                              ),
-                              DataCell(
-                                Text(parseIntToBrazilianCurrentFormat(product.unitWholesalePrice)),
-                              ),
-                              DataCell(
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      onPressed: _isLoading
-                                          ? null
-                                          : () => _deleteProduct(product.id!),
-                                      icon: Icon(Icons.delete),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        context.pushNamed(
-                                          'produtos-editar',
-                                          pathParameters: {
-                                            'id': product.id!.toString(),
-                                          },
-                                        );
-                                      },
-                                      icon: Icon(Icons.edit),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                        .toList(),
-                  );
+              Text('Produtos', style: TextStyle(fontSize: 24)),
+              ElevatedButton.icon(
+                onPressed: () {
+                  context.pushNamed('produtos-adicionar');
                 },
+                label: const Text('Adicionar Produto'),
+                icon: Icon(Icons.add),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 20),
+          FutureBuilder(
+            future: _repo.getAll(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Erro ao buscar produtos: ${snapshot.error}'),
+                );
+              }
+
+              return DataTable(
+                showBottomBorder: true,
+                sortAscending: true,
+                sortColumnIndex: 0,
+                columns: [
+                  DataColumn(label: Expanded(child: const Text('Nome'))),
+                  DataColumn(
+                    label: Expanded(
+                      child: const Text('Preço de Varejo (unidade)'),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Expanded(
+                      child: const Text('Preço de Atacado (unidade)'),
+                    ),
+                  ),
+                  DataColumn(label: Expanded(child: const Text('Ações'))),
+                ],
+                rows: snapshot.data!
+                    .map(
+                      (product) => DataRow(
+                        cells: [
+                          DataCell(Text(product.name)),
+                          DataCell(
+                            Text(
+                              parseIntToBrazilianCurrentFormat(
+                                product.unitRetailPrice,
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              parseIntToBrazilianCurrentFormat(
+                                product.unitWholesalePrice,
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Row(
+                              children: [
+                                IconButton(
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () => _deleteProduct(product.id!),
+                                  icon: Icon(Icons.delete),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    context.pushNamed(
+                                      'produtos-editar',
+                                      pathParameters: {
+                                        'id': product.id!.toString(),
+                                      },
+                                    );
+                                  },
+                                  icon: Icon(Icons.edit),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                    .toList(),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

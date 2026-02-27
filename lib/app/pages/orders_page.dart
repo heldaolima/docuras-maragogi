@@ -132,7 +132,11 @@ class _OrdersPageState extends State<OrdersPage> {
               }
 
               if (snapshot.hasError) {
-                return Center(child: Text(snapshot.error!.toString()));
+                return Center(
+                  child: Text(
+                    "Erro ao buscar pedidos: ${snapshot.error!.toString()}",
+                  ),
+                );
               }
 
               return DataTable(
